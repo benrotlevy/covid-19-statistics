@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./Styles/normalize.css">
+    <link rel="stylesheet" href="./Styles/style.css">
+    <title>Covid-19 Statistics</title>
+</head>
+<body>
+    <header>
+        <h1>Covid-19 Statistics</h1>
+    </header>
+    <main>
+        <div><canvas id="my-chart"></canvas></div>
+    </main>
+    <footer>
+        <div class="continents-buttons">
+            <button class="btn continent" id="americas-btn">Americas</button>
+            <button class="btn continent" id="africa-btn">Africa</button>
+            <button class="btn continent" id="asia-btn">Asia</button>
+            <button class="btn continent" id="europe-btn">Europe</button>
+            <button class="btn continent" id="oceania-btn">Oceania</button>
+            <button class="btn continent selected" id="world-btn">World</button>
+            <select name="countrys" id="select-box">
+                <option value="" disabled selected hidden >Select Country</option>
+            </select>
+        </div>
+        <div class="select-buttons">
+            <button class="btn select selected" id="confirmed">Confirmed</button>
+            <button class="btn select" id="deaths">Deaths</button>
+            <button class="btn select" id="critical">Critical</button>
+            <button class="btn select" id="recovered">Recovered</button>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./JS/app.js" defer></script>
+</body>
+</html>

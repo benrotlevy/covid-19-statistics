@@ -1,0 +1,46 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+header {
+    width: 100%;
+    margin: auto;
+    text-align: center;
+}
+
+footer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#my-chart {
+    /* border: 1px dotted red; */
+}
+
+main div {
+    position: relative;
+    height: 70vh;
+    width: 95vw;
+    margin: auto;
+}
+
+.btn {
+    margin: 1rem 2rem;
+    padding: 1rem 1.5rem;
+}
+
+.btn:hover {
+    background-color: aqua;
+}
+
+.selected {
+    background-color: aqua;
+}
+
+#select-box {
+    max-width: 10rem;
+}
