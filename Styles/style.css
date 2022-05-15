@@ -117,7 +117,7 @@ h1 {
     height: 100px;
     width: 100px;
     border-radius: 50%;
-    border-top: lightskyblue 5px solid;
+    border-top: #FF6384 5px solid;
     animation: round 1s linear infinite;
 }
 
