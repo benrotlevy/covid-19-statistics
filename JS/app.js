@@ -25,6 +25,7 @@ async function getData() {
         const countrys = axios.get("https://intense-mesa-62220.herokuapp.com/https://restcountries.herokuapp.com/api/v1");
         const allCountrysCovid = axios.get("https://corona-api.com/countries");
         const data = await Promise.all([countrys, allCountrysCovid]);
+        removeSpinner();
         const names = filterCountrysApi(data[0].data);
         const names2 = filterCovidApi(data[1].data.data);
         merge(names, names2, fullData);
@@ -44,6 +45,7 @@ async function getData() {
 async function refreshData(event) {
     try {
         if(!state.isRefresh) {
+            addSpinner();
             event.target.removeEventListener("click", refreshData);
             state.isRefresh = true;
             updateSync();
@@ -54,6 +56,7 @@ async function refreshData(event) {
             const names2 = filterCovidApi(data[1].data.data);
             fullData = [];
             merge(names, names2, fullData);
+            removeSpinner();
             if(state.isPieDisplay) {
                 selectEvent("", state.pieDisplay);
             } else {
@@ -147,6 +150,7 @@ function updateChart(chart, names, nums, label) {
 }
 
 function initializeTable(names, nums) {
+    document.querySelector("#chart-container").classList.remove("none");
     const labels = names;
     
     const data = {
@@ -291,7 +295,7 @@ function addEventsToBtns() {
 
 function addEventToContinents() {
     const continents = document.querySelector("#select-continents");
-    continents.addEventListener("change", selectContinentEvent);
+    continents.addEventListener("click", selectContinentEvent);
 }
 
 function selectContinentEvent(event) {
@@ -395,4 +399,19 @@ function fieldsEvent(field) {
     }
     updateChart(myChart ,state.dataDisplay.names, filterNums(filtered, field), `${state.chartDisplay.continent} - ${field}`);
     updateState(state.chartDisplay.continent, field, state.dataDisplay.names, filterNums(filtered, field));
+}
+
+function removeSpinner() {
+    document.querySelector(".spinner-container").classList.add("none");
+    if(state.isPieDisplay) {
+        document.querySelector("#pie-container").classList.remove("none");
+    } else {
+        document.querySelector("#chart-container").classList.remove("none");
+    }
+}
+
+function addSpinner() {
+    document.querySelector(".spinner-container").classList.remove("none");;
+    document.querySelector("#chart-container").classList.add("none");
+    document.querySelector("#pie-container").classList.add("none");
 }
