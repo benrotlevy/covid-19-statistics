@@ -295,7 +295,7 @@ function addEventsToBtns() {
 
 function addEventToContinents() {
     const continents = document.querySelector("#select-continents");
-    continents.addEventListener("click", selectContinentEvent);
+    continents.addEventListener("change", selectContinentEvent);
 }
 
 function selectContinentEvent(event) {
