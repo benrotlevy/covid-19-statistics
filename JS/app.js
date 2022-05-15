@@ -1,7 +1,9 @@
 
 
-const fullData = [];
+let fullData = [];
 let myChart;
+let myPie;
+let pieInit = false;
 
 const state = {
     chartDisplay : {
@@ -11,26 +13,66 @@ const state = {
     dataDisplay : {
         names: [],
         nums: [],
-    }
+    },
+    isPieDisplay: false,
+    isRefresh: false,
+    pieDisplay: {}
 }
 
 async function getData() {
     try {
+        updateSync();
         const countrys = axios.get("https://intense-mesa-62220.herokuapp.com/https://restcountries.herokuapp.com/api/v1");
         const allCountrysCovid = axios.get("https://corona-api.com/countries");
         const data = await Promise.all([countrys, allCountrysCovid]);
         const names = filterCountrysApi(data[0].data);
         const names2 = filterCovidApi(data[1].data.data);
         merge(names, names2, fullData);
-        console.log(fullData.map(c => c.region));
+        // console.log(fullData.map(c => c.region));
         initializeTable(filterNames(fullData), filterNums(fullData, "confirmed"));
-        updateState("world", "confirmed",filterNames(fullData), filterNums(fullData, "confirmed"));
+        updateState("World", "confirmed",filterNames(fullData), filterNums(fullData, "confirmed"));
         updateCountrys(state.dataDisplay.names);
         addEventToSelect();
         addEventsToBtns();
+        addEventToSync();
     } catch (error) {
         console.log(error);
     }
+}
+
+async function refreshData(event) {
+    try {
+        if(!state.isRefresh) {
+            event.target.removeEventListener("click", refreshData);
+            state.isRefresh = true;
+            updateSync();
+            const countrys = axios.get("https://intense-mesa-62220.herokuapp.com/https://restcountries.herokuapp.com/api/v1");
+            const allCountrysCovid = axios.get("https://corona-api.com/countries");
+            const data = await Promise.all([countrys, allCountrysCovid]);
+            const names = filterCountrysApi(data[0].data);
+            const names2 = filterCovidApi(data[1].data.data);
+            fullData = [];
+            merge(names, names2, fullData);
+            if(state.isPieDisplay) {
+                selectEvent("", state.pieDisplay);
+            } else {
+                continentsEvent(state.chartDisplay.continent);
+            }
+            state.isRefresh = false;
+            event.target.addEventListener("click", refreshData);
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+function addEventToSync() {
+    const sync = document.querySelector("#sync");
+    sync.addEventListener("click", refreshData);
+}
+
+function updateSync() {
+    document.querySelector("p").innerText = `Last Sync: ${Date().split(" ").slice(1,5).join(" ")}`;
 }
 
 function addEventToSelect() {
@@ -38,9 +80,32 @@ function addEventToSelect() {
     selectBox.addEventListener("change", selectEvent);
 }
 
-function selectEvent(event) {
-    const country = findCountryData(event.target.value);
-    
+function selectEvent(event, obj) {
+    let country = obj;
+    if(!obj) country = findCountryData(event.target.value);
+    // console.log(country);
+    const nums = [
+        country.latestData.recovered,
+        country.latestData.critical,
+        country.latestData.deaths,
+    ];
+    const confirmed = country.latestData.confirmed.toLocaleString('en-US');
+    const newDeaths = country.today.confirmed.toLocaleString('en-US');
+    const newCasee = country.today.deaths.toLocaleString('en-US');
+    const subtitle = `Total cases ${confirmed}, New cases ${newCasee}, New deaths ${newDeaths}`;
+    if(!state.isPieDisplay) replaceCharts();
+    if(!pieInit) initializePie();
+    pieInit = true;
+    updatePie(myPie, country.name, nums, subtitle);
+    state.isPieDisplay = true;
+    state.pieDisplay = country;
+}
+
+function replaceCharts() {
+    const chartContainer = document.getElementById("chart-container");
+    const pieContainer = document.getElementById("pie-container");
+    chartContainer.classList.toggle("none");
+    pieContainer.classList.toggle("none");
 }
 
 function findCountryData(name) {
@@ -114,9 +179,58 @@ function initializeTable(names, nums) {
             // }
         }
     };
-    
     myChart = new Chart(
         document.getElementById('my-chart'),
+        config
+    );
+}
+
+function updatePie(pie, countryName, nums, subtitle) {
+    pie.data.datasets[0].data = nums;
+    pie.options.plugins.title.text = countryName;
+    pie.options.plugins.subtitle.text = subtitle;
+    pie.update();
+}
+
+function initializePie() {
+    const labels = ["Recovered", "Critical", "Deaths"];
+
+    const nums = [2, 3, 5];
+    
+    const data = {
+        labels: labels,
+        datasets: [{
+            // label: 'country',
+            backgroundColor: [
+                'rgb(54, 162, 235)',
+                'rgb(255, 205, 86)',
+                'rgb(255, 99, 132)',
+              ],
+            data: nums,
+            hoverOffset: 4
+        }]
+    };
+    
+    const config = {
+        type: 'pie',
+        data: data,
+        options: { 
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'israel'
+                },
+                subtitle: {
+                    display: true,
+                    text: 'total cases 121380, new cases 2345, new deaths 3452'
+                }
+            }
+        }
+    };
+
+    myPie = new Chart(
+        document.getElementById('my-pie'),
         config
     );
 }
@@ -125,12 +239,10 @@ getData()
 
 function merge(names, names2, mergeTo) {
     for(let countryData of names) {
-        let flag = false;
         for(let covidData of names2) {
             if(covidData.code === countryData.code) {
                 covidData.name = countryData.name;
                 covidData.region = countryData.region;
-                flag = true;
                 mergeTo.push(covidData);
             }
         }
@@ -172,11 +284,13 @@ function filterNums(data, key) {
 }
 
 function addEventsToBtns() {
-    const buttons = document.querySelectorAll("button");
+    const buttons = document.querySelectorAll(".btn");
     buttons.forEach(button => {button.addEventListener("click", buttonEvent)})
 }
 
 function buttonEvent(event) {
+    if(state.isPieDisplay) replaceCharts();
+    state.isPieDisplay = false;
     colorBorder(event.target);
     switch (event.target.getAttribute("id")) {
         case "americas-btn":
@@ -195,7 +309,7 @@ function buttonEvent(event) {
             continentsEvent("Oceania");
             break;
         case "world-btn":
-            continentsEvent();
+            continentsEvent("World");
             break;
         case "confirmed":
             fieldsEvent("confirmed");
@@ -235,25 +349,21 @@ function colorField(element, fields) {
 }
 
 function continentsEvent(continent) {
-    if(continent) {
-        const filtered = filterNamesByRegion(fullData, continent);
-        updateChart(myChart ,filterNames(filtered), filterNums(filtered, state.chartDisplay.field), `${continent} - ${state.chartDisplay.field}`);
-        updateState(continent, state.chartDisplay.field,filterNames(filtered), filterNums(filtered, state.chartDisplay.field));
-        updateCountrys(filterNames(filtered), true);
-    } else {
-        updateChart(myChart ,filterNames(fullData), filterNums(fullData, state.chartDisplay.field), `world - ${state.chartDisplay.field}`);
-        updateState("world", state.chartDisplay.field,filterNames(fullData), filterNums(fullData, state.chartDisplay.field))
-        updateCountrys(filterNames(fullData), true);
+    let filtered = filterNamesByRegion(fullData, continent);;
+    if(continent === "World") {
+        filtered = fullData;
     }
+    console.log(filtered);
+    updateChart(myChart ,filterNames(filtered), filterNums(filtered, state.chartDisplay.field), `${continent} - ${state.chartDisplay.field}`);
+    updateState(continent, state.chartDisplay.field, filterNames(filtered), filterNums(filtered, state.chartDisplay.field));
+    updateCountrys(filterNames(filtered), true);
 }
 
 function fieldsEvent(field) {
-    if(state.chartDisplay.continent !== "world") {
-        const filtered = filterNamesByRegion(fullData, state.chartDisplay.continent);
-        updateChart(myChart ,state.dataDisplay.names, filterNums(filtered, field), `${state.chartDisplay.continent} - ${field}`);
-        updateState(state.chartDisplay.continent, field, state.dataDisplay.names, filterNums(filtered, field));
-    } else {
-        updateChart(myChart ,state.dataDisplay.names, filterNums(fullData, field), `${state.chartDisplay.continent} - ${field}`);
-        updateState(state.chartDisplay.continent, field, state.dataDisplay.names, filterNums(fullData, field));
+    let filtered = filterNamesByRegion(fullData, state.chartDisplay.continent);;
+    if(state.chartDisplay.continent === "World") {
+        filtered = fullData;
     }
+    updateChart(myChart ,state.dataDisplay.names, filterNums(filtered, field), `${state.chartDisplay.continent} - ${field}`);
+    updateState(state.chartDisplay.continent, field, state.dataDisplay.names, filterNums(filtered, field));
 }
