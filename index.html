@@ -20,15 +20,20 @@
     </main>
     <footer>
         <div class="continents-buttons">
-            <button class="btn continent" id="americas-btn">Americas</button>
+            <select name="continents" id="select-continents">
+                <option value="world">World</option>
+                <option value="americas">Americas</option>
+                <option value="africa">Africa</option>
+                <option value="asia">Asia</option>
+                <option value="europe">Europe</option>
+                <option value="oceania">Oceania</option>
+            </select>
+            <!-- <button class="btn continent" id="americas-btn">Americas</button>
             <button class="btn continent" id="africa-btn">Africa</button>
             <button class="btn continent" id="asia-btn">Asia</button>
             <button class="btn continent" id="europe-btn">Europe</button>
             <button class="btn continent" id="oceania-btn">Oceania</button>
-            <button class="btn continent selected" id="world-btn">World</button>
-            <select name="countrys" id="select-box">
-                <option value="" disabled selected hidden >Select Country</option>
-            </select>
+            <button class="btn continent selected" id="world-btn">World</button> -->
         </div>
         <div class="select-buttons">
             <button class="btn select selected" id="confirmed">Confirmed</button>
@@ -36,6 +41,9 @@
             <button class="btn select" id="critical">Critical</button>
             <button class="btn select" id="recovered">Recovered</button>
         </div>
+        <select name="countrys" id="select-box">
+            <option value="" disabled selected hidden >Select Country</option>
+        </select>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

@@ -32,6 +32,7 @@ async function getData() {
         initializeTable(filterNames(fullData), filterNums(fullData, "confirmed"));
         updateState("World", "confirmed",filterNames(fullData), filterNums(fullData, "confirmed"));
         updateCountrys(state.dataDisplay.names);
+        addEventToContinents();
         addEventToSelect();
         addEventsToBtns();
         addEventToSync();
@@ -288,29 +289,57 @@ function addEventsToBtns() {
     buttons.forEach(button => {button.addEventListener("click", buttonEvent)})
 }
 
-function buttonEvent(event) {
+function addEventToContinents() {
+    const continents = document.querySelector("#select-continents");
+    continents.addEventListener("change", selectContinentEvent);
+}
+
+function selectContinentEvent(event) {
     if(state.isPieDisplay) replaceCharts();
     state.isPieDisplay = false;
-    colorBorder(event.target);
-    switch (event.target.getAttribute("id")) {
-        case "americas-btn":
+    switch (event.target.value) {
+        case "americas":
             continentsEvent("Americas");
             break;
-        case "africa-btn":
+        case "africa":
             continentsEvent("Africa");
             break;
-        case "asia-btn":
+        case "asia":
             continentsEvent("Asia");
             break;
-        case "europe-btn":
+        case "europe":
             continentsEvent("Europe");
             break;
-        case "oceania-btn":
+        case "oceania":
             continentsEvent("Oceania");
             break;
-        case "world-btn":
+        case "world":
             continentsEvent("World");
-            break;
+            break; 
+    }
+}
+
+function buttonEvent(event) {
+    colorBorder(event.target);
+    switch (event.target.getAttribute("id")) {
+        // case "americas-btn":
+        //     continentsEvent("Americas");
+        //     break;
+        // case "africa-btn":
+        //     continentsEvent("Africa");
+        //     break;
+        // case "asia-btn":
+        //     continentsEvent("Asia");
+        //     break;
+        // case "europe-btn":
+        //     continentsEvent("Europe");
+        //     break;
+        // case "oceania-btn":
+        //     continentsEvent("Oceania");
+        //     break;
+        // case "world-btn":
+        //     continentsEvent("World");
+        //     break;
         case "confirmed":
             fieldsEvent("confirmed");
             break;
