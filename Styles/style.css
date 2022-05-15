@@ -41,13 +41,13 @@ footer {
 }
 
 main {
-    height: 65vh;
+    height: 76vh;
     width: 100vw;
 }
 
 main div {
     position: relative;
-    height: 65vh;
+    height: 76vh;
     width: 95vw;
     margin: auto;
 }
