@@ -16,7 +16,8 @@ const state = {
     },
     isPieDisplay: false,
     isRefresh: false,
-    pieDisplay: {}
+    pieDisplay: {},
+    isAllCountrys: true,
 }
 
 async function getData() {
@@ -85,24 +86,36 @@ function addEventToSelect() {
 }
 
 function selectEvent(event, obj) {
-    let country = obj;
-    if(!obj) country = findCountryData(event.target.value);
-    // console.log(country);
-    const nums = [
-        country.latestData.recovered,
-        country.latestData.critical,
-        country.latestData.deaths,
-    ];
-    const confirmed = country.latestData.confirmed.toLocaleString('en-US');
-    const newDeaths = country.today.confirmed.toLocaleString('en-US');
-    const newCasee = country.today.deaths.toLocaleString('en-US');
-    const subtitle = `Total cases ${confirmed}, New cases ${newCasee}, New deaths ${newDeaths}`;
-    if(!state.isPieDisplay) replaceCharts();
-    if(!pieInit) initializePie();
-    pieInit = true;
-    updatePie(myPie, country.name, nums, subtitle);
-    state.isPieDisplay = true;
-    state.pieDisplay = country;
+    state.isAllCountrys = event.target.value === "all countrys"? true: false;
+    if(!state.isAllCountrys) {
+        let country = obj;
+        if(!obj) country = findCountryData(event.target.value);
+        const nums = [
+            country.latestData.recovered,
+            country.latestData.critical,
+            country.latestData.deaths,
+        ];
+        const confirmed = country.latestData.confirmed.toLocaleString('en-US');
+        const newDeaths = country.today.confirmed.toLocaleString('en-US');
+        const newCasee = country.today.deaths.toLocaleString('en-US');
+        const subtitle = `Total cases ${confirmed}, New cases ${newCasee}, New deaths ${newDeaths}`;
+        if(!state.isPieDisplay) replaceCharts();
+        if(!pieInit) initializePie();
+        pieInit = true;
+        updatePie(myPie, country.name, nums, subtitle);
+        state.isPieDisplay = true;
+        state.pieDisplay = country;
+        hideAndShowButtons();
+    } else {
+        replaceCharts();
+        state.isPieDisplay = false;
+        hideAndShowButtons();
+    }
+}
+
+function hideAndShowButtons() {
+    const flag = state.isPieDisplay? "none": "flex";
+    document.querySelector(".select-buttons").style.display = `${flag}`;
 }
 
 function replaceCharts() {
@@ -121,10 +134,11 @@ function updateCountrys(data, flag) {
     if(flag) {
         selectBox.innerHTML = "";
         const option = document.createElement("option");
-        option.setAttribute("disabled", "");
-        option.setAttribute("hidden", "");
+        // option.setAttribute("disabled", "");
+        // option.setAttribute("hidden", "");
         option.setAttribute("selected", "");
-        option.innerText = "Select Country";  
+        option.setAttribute("value", "all countrys");
+        option.innerText = "All Countrys";  
         selectBox.append(option);
     }
     for(let name of data) {
@@ -301,6 +315,7 @@ function addEventToContinents() {
 function selectContinentEvent(event) {
     if(state.isPieDisplay) replaceCharts();
     state.isPieDisplay = false;
+    hideAndShowButtons();
     switch (event.target.value) {
         case "americas":
             continentsEvent("Americas");
